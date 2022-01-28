@@ -5,7 +5,7 @@
       @dragleave.prevent="drag = false"
       @drop.prevent="onDrop"
       :class="ddareaClass"
-      :style="ddareBgColor"
+      :style="ddareaBgColor"
     >
       <div>
         <h3>
@@ -60,7 +60,7 @@ export default {
         return "ddarea text-body-2"
       }
     },
-    ddareBgColor() {
+    ddareaBgColor() {
       let background;
       if (this.drag) {
         background = "#666666";
