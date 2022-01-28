@@ -21,6 +21,7 @@ module.exports = {
               arch: ['x64'], // 'x64', 'ia32'
             },
           ],
+          icon: "src/assets/icon.png",
           files: [
             "node_modules/ffmpeg-static-electron/bin/win/${arch}/ffmpeg",
             "!node_modules/ffmpeg-static-electron/bin/win/ia32${/*}",
