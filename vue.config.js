@@ -14,6 +14,7 @@ module.exports = {
           "node_modules/ffmpeg-static-electron/index.js",
           "node_modules/ffmpeg-static-electron/package.json",
         ],
+        asar: false,
         win: {
           target: [
             {
