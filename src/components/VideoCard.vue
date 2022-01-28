@@ -79,20 +79,6 @@ export default {
     clear() {
       this.$emit('clear-video', this.video);
     },
-    chipColor(speed) {
-      function getColor(selected) {
-        if (selected) {
-          return "blue";
-        } else {
-          return "grey darken-2";
-        }
-      }
-      if (this.individualTargets[`x${speed}`] !== null) {
-        return getColor(this.individualTargets[`x${speed}`]);
-      } else {
-        return getColor(this.allTargets[`x${speed}`]);
-      }
-    },
   },
   computed: {
     prefix() {
@@ -101,6 +87,23 @@ export default {
       } else {
         return "";
       }
+    },
+    chipColor: function () {
+      const self = this;
+      return function (speed) {
+        function getColor(selected) {
+          if (selected) {
+            return "blue";
+          } else {
+            return "grey darken-2";
+          }
+        }
+        if (self.individualTargets[`x${speed}`] !== null) {
+          return getColor(self.individualTargets[`x${speed}`]);
+        } else {
+          return getColor(self.allTargets[`x${speed}`]);
+        }
+      };
     }
   }
 }

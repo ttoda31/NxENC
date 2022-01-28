@@ -111,13 +111,6 @@ export default {
       }
       this.ddareaHeight = "25%";
     },
-    chipColor(speed) {
-      if (this.allTargets[`x${speed}`]) {
-        return "blue";
-      } else {
-        return "grey darken-2";
-      }
-    },
     select(speed) {
       this.allTargets[`x${speed}`] = !this.allTargets[`x${speed}`];
     },
@@ -138,6 +131,16 @@ export default {
   computed: {
     existVideo() {
       return this.videos.length !== 0;
+    },
+    chipColor: function () {
+      const self = this;
+      return function (speed) {
+      if (self.allTargets[`x${speed}`]) {
+        return "blue";
+      } else {
+        return "grey darken-2";
+      }
+      }
     }
   }
 }
