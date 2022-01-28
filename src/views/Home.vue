@@ -1,20 +1,20 @@
 <template>
   <v-container
-    style="height: 100%; max-height: 450px"
+    style="height: 100%; max-height: 600px"
     class="px-7 py-3 d-flex flex-column"
   >
     <drag-and-drop
       @video-found="videoFound"
       :isFullSize="!existVideo"
       :isEncoding="isEncoding"
-      class="mx-1 mr-8 mb-2 pr-2"
+      class="mx-1 mr-8 mt-1 mb-4 pr-2"
     >
     </drag-and-drop>
 
     <v-container
       v-if="existVideo"
       class="pa-0"
-      style="height: 68%"
+      style="height: 74%"
     >
       <perfect-scrollbar>
         <video-card
@@ -122,6 +122,9 @@ export default {
     },
     clearAll() {
       this.videos = [];
+      for (const speed of [1, 2, 4, 8, 16 ,32]) {
+        this.allTargets[`x${speed}`] = false;
+      }
     },
     clearVideo(deleted) {
       this.videos = this.videos.filter(video => video !== deleted);
