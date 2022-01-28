@@ -150,11 +150,11 @@ export default {
     chipColor: function () {
       const self = this;
       return function (speed) {
-      if (self.allTargets[`x${speed}`]) {
-        return "blue";
-      } else {
-        return "grey darken-2";
-      }
+        if (self.allTargets[`x${speed}`]) {
+          return "blue";
+        } else {
+          return "grey darken-2";
+        }
       }
     }
   }
