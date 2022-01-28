@@ -21,7 +21,12 @@
           class="text-body-2 pa-0 text-truncate"
           style="max-width: 240px"
         >
-          Settings ( {{ videos.length }} videos )
+          <div v-if="videos.length == 1">
+            {{ videos.length }} video
+          </div>
+          <div v-else>
+            {{ videos.length }} videos
+          </div>
         </v-card-subtitle>
         <v-spacer></v-spacer>
         <v-chip
