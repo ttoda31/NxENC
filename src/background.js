@@ -5,6 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import * as path from "path";
 import fs from "fs";
+import * as ffmpeg from'ffmpeg-static-electron';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -123,4 +124,15 @@ ipcMain.handle('findVideos', async (event, files) => {
     }
   }
   return videoFiles;
+})
+
+ipcMain.handle('encodeVideo', async (event, video) => {
+  const FFMPEG = ffmpeg.path;
+  const INPUT = video.path;
+  const OUTPUT = path.dirname(video.path) + 
+                 path.basename(video.path, path.extname(INPUT)) + 
+                 ".mp4";
+
+  const cmd = `"${FFMPEG}" -i "${INPUT}" "${OUTPUT}"`
+  return cmd;
 })

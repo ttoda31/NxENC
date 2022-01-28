@@ -3,6 +3,7 @@
     style="height: 100%; max-height: 600px"
     class="px-7 py-3 d-flex flex-column"
   >
+  {{ ffmpegPath }}
     <drag-and-drop
       @video-found="videoFound"
       :isFullSize="!existVideo"
@@ -103,6 +104,7 @@ export default {
       x32: false,
     },
     isEncoding: false,
+    ffmpegPath: null,
   }),
   components: {
     DragAndDrop,
@@ -133,9 +135,13 @@ export default {
       if (this.isEncoding) {
         this.isEncoding = false;
       } else {
+        this.hoge();
         this.isEncoding = true;
       }
     },
+    async hoge() {
+      this.ffmpegPath = await window.myAPI.encodeVideo(this.videos[0]);
+    }
   },
   computed: {
     existVideo() {

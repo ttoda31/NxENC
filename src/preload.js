@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('myAPI', {
     windowMinimize: () => ipcRenderer.send('window-minimize'),
     windowClose: () => ipcRenderer.send('window-close'),
 
-    findVideos: async (files) => await ipcRenderer.invoke('findVideos', files)
+    findVideos: async (files) => await ipcRenderer.invoke('findVideos', files),
+    encodeVideo: async (video) => await ipcRenderer.invoke('encodeVideo', video),
   }
 )
