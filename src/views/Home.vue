@@ -6,6 +6,7 @@
     <drag-and-drop
       @video-found="videoFound"
       :isFullSize="!existVideo"
+      :isEncoding="isEncoding"
       class="mx-1 mr-8 mb-2 pr-2"
     >
     </drag-and-drop>
@@ -30,6 +31,7 @@
           :key="speed"
           :color="chipColor(speed)"
           @click="select(speed)"
+          :disabled="isEncoding"
         >
           {{speed}}x
         </v-chip>
@@ -40,16 +42,19 @@
           @click="clearAll"
           class="mr-2"
           color="grey darken-3"
-          style="height: 24px"
+          style="height: 24px;"
+          :disabled="isEncoding"
         >
           Clear
         </v-btn>
         <v-btn
           small
+          @click="encode"
           color="red lighten-1"
-          style="height: 24px"
+          style="height: 24px; width: 80px"
         >
-          Encode
+          <div v-if="isEncoding">Stop</div>
+          <div v-else>Encode</div>
         </v-btn>
       </v-row>
     </v-card>
@@ -66,6 +71,7 @@
           @clear-video="clearVideo"
           :video="video"
           :allTargets="allTargets"
+          :isEncoding="isEncoding"
         ></video-card>
         <v-spacer></v-spacer>
       </perfect-scrollbar>
@@ -90,6 +96,7 @@ export default {
       x16: false,
       x32: false,
     },
+    isEncoding: false,
   }),
   components: {
     DragAndDrop,
@@ -119,6 +126,13 @@ export default {
     },
     clearVideo(deleted) {
       this.videos = this.videos.filter(video => video !== deleted);
+    },
+    encode() {
+      if (this.isEncoding) {
+        this.isEncoding = false;
+      } else {
+        this.isEncoding = true;
+      }
     },
   },
   computed: {

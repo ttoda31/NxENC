@@ -19,6 +19,7 @@
         :key="speed"
         :color="chipColor(speed)"
         @click="select(speed)"
+        :disabled="isEncoding"
       >
         {{speed}}x
       </v-chip>
@@ -38,6 +39,7 @@
       color="grey lighten-1"
       style="right: 7px; top: 18px;"
       @click="clear"
+      :disabled="isEncoding"
     >
       <v-icon small>cancel</v-icon>
     </v-btn>
@@ -62,6 +64,7 @@ export default {
   props: {
     video: Object,
     allTargets: Object,
+    isEncoding: Boolean,
   },
   methods: {
     select(speed) {

@@ -27,10 +27,12 @@ export default {
   }),
   props: {
     isFullSize: Boolean,
+    isEncoding: Boolean,
   },
   methods: {
     onDrop(event) {
       this.drag = false;
+      if (this.isEncoding) return;
       if (!event) return;
       if (!event.dataTransfer) return;
       if (event.dataTransfer.files.length === 0) return;
@@ -56,13 +58,15 @@ export default {
     ddareaClass() {
       if (this.isFullSize) {
         return "ddareaFullSize"
-      } else {
+      } else if (!this.isEncoding) {
         return "ddarea text-body-2"
+      } else {
+        return "ddareaEncoding text-body-2"
       }
     },
     ddareaBgColor() {
       let background;
-      if (this.drag) {
+      if (this.drag && !this.isEncoding) {
         background = "#666666";
       } else {
         background = "none";
@@ -90,7 +94,7 @@ export default {
 .ddareaFullSize {
   justify-content: center;
   align-items: center;
-  border: 5px dashed #bbbbbb;
+  border: 5px dashed #aaaaaa;
   border-radius: 30px;
   display: flex;
   width: 100%;
@@ -101,12 +105,23 @@ export default {
 .ddarea {
   justify-content: center;
   align-items: center;
-  border: 3px dashed #bbbbbb;
+  border: 3px dashed #aaaaaa;
   border-radius: 15px;
   display: flex;
   width: 100%;
   height: 40px;
   text-align: center;
   color: #aaaaaa
+}
+.ddareaEncoding {
+  justify-content: center;
+  align-items: center;
+  border: 3px dashed #777777;
+  border-radius: 15px;
+  display: flex;
+  width: 100%;
+  height: 40px;
+  text-align: center;
+  color: #777777
 }
 </style>
