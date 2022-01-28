@@ -17,7 +17,7 @@ module.exports = {
         win: {
           target: [
             {
-              target: 'portable', // 'zip', 'nsis', 'portable'
+              target: 'zip', // 'zip', 'nsis', 'portable'
               arch: ['x64'], // 'x64', 'ia32'
             },
           ],
