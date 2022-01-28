@@ -11,9 +11,27 @@
     >
     </drag-and-drop>
 
+    <v-container
+      v-if="existVideo"
+      class="pa-0"
+      style="height: 68%"
+    >
+      <perfect-scrollbar>
+        <video-card
+          v-for="video of videos"
+          :key="video.path"
+          @clear-video="clearVideo"
+          :video="video"
+          :allTargets="allTargets"
+          :isEncoding="isEncoding"
+        ></video-card>
+        <v-spacer></v-spacer>
+      </perfect-scrollbar>
+    </v-container>
+
     <v-card
       v-if="existVideo"
-      class="pa-3 mb-3 mx-1 mr-1"
+      class="pa-3 mt-3 mx-1 mr-1"
       dark
     >
       <v-row class="ma-0 mr-5">
@@ -31,7 +49,7 @@
         <v-spacer></v-spacer>
         <v-chip
           x-small
-          class="mx-1 px-2 mt-1"
+          class="mx-1 px-2"
           v-for="speed of [1, 2, 4, 8, 16, 32]"
           :key="speed"
           :color="chipColor(speed)"
@@ -42,6 +60,7 @@
         </v-chip>
       </v-row>
       <v-row class="ma-0 mr-5 pt-2">
+        <v-spacer></v-spacer>
         <v-btn
           small
           @click="clearAll"
@@ -63,24 +82,6 @@
         </v-btn>
       </v-row>
     </v-card>
-
-    <v-container
-      v-if="existVideo"
-      class="pa-0"
-      style="height: 68%"
-    >
-      <perfect-scrollbar>
-        <video-card
-          v-for="video of videos"
-          :key="video.path"
-          @clear-video="clearVideo"
-          :video="video"
-          :allTargets="allTargets"
-          :isEncoding="isEncoding"
-        ></video-card>
-        <v-spacer></v-spacer>
-      </perfect-scrollbar>
-    </v-container>
   </v-container>
 </template>
 
