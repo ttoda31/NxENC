@@ -21,9 +21,12 @@
           v-for="video of videos"
           :key="video.path"
           @clear-video="clearVideo"
+          @finish-encode="finishEncode"
           :video="video"
           :allTargets="allTargets"
           :isEncoding="isEncoding"
+          :currentVideo="currentVideo"
+          :ref="video.path"
         ></video-card>
         <v-spacer></v-spacer>
       </perfect-scrollbar>
@@ -102,6 +105,8 @@ export default {
       x32: false,
     },
     isEncoding: false,
+    currentVideoIndex: null,
+    currentVideo: null,
   }),
   components: {
     DragAndDrop,
@@ -127,14 +132,29 @@ export default {
     clearVideo(deleted) {
       this.videos = this.videos.filter(video => video !== deleted);
     },
-    async encode() {
+    encode() {
       if (this.isEncoding) {
-        await window.myAPI.cancelEncode();
+        window.myAPI.cancelEncode();
+        this.currentVideoIndex = null;
+        this.currentVideo = null;
         this.isEncoding = false;
       } else {
-        await window.myAPI.encode(this.videos[0]);
+        this.currentVideoIndex = 0;
+        this.currentVideo = this.videos[this.currentVideoIndex];
         this.isEncoding = true;
+        this.$refs[this.currentVideo.path][0].encode();
       }
+    },
+    finishEncode() {
+      this.currentVideoIndex += 1;
+      if (this.videos.length === this.currentVideoIndex) {
+        console.log("Finish!");
+        this.isEncoding = false;
+        return;
+      }
+
+      this.currentVideo = this.videos[this.currentVideoIndex];
+      this.$refs[this.currentVideo.path][0].encode();
     },
   },
   computed: {

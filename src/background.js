@@ -6,6 +6,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import * as path from "path";
 import fs from "fs";
 import * as ffmpeg from'ffmpeg-static-electron';
+import * as ffprobe from'ffprobe-static-electron';
 import * as childProcess from 'child_process';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -128,6 +129,25 @@ ipcMain.handle('findVideos', async (event, files) => {
   return videoFiles;
 })
 
+ipcMain.handle('getVideoInfo', async (event, video) => {
+  const FFPROBE = ffprobe.path;
+  const INPUT = video.path;
+
+  const args = ["-i", INPUT, "-hide_banner", "-show_format",
+                "-print_format", "json"];
+  const ffprobeProcess = childProcess.spawnSync(FFPROBE, args);
+  console.log('FFPROBE_STDOUT', ffprobeProcess.stdout.toString());
+  console.log('FFPROBE_STDERR', ffprobeProcess.stderr.toString());
+  console.log('FFPROBE_CODE', ffprobeProcess.status);
+  if (ffprobeProcess.status == 0) {
+    const result = JSON.parse(ffprobeProcess.stdout.toString());
+    const duration = parseFloat(result.format.duration);
+    return { duration, status: 0 }
+  } else {
+    return { status: ffprobeProcess.status }
+  }
+})
+
 let ffmpegProcess = null;
 let ffmpegStdOut = null;
 let ffmpegStdErr = null;
@@ -147,17 +167,33 @@ const cleanup = () => {
   ffmpegCode = null;
 }
 
-ipcMain.handle('encode', async (event, video) => {
+function makeAtempo(speed) {
+  let atempos = [];
+  for (let i = 0; i < Math.log2(speed); ++i) {
+    atempos.push("atempo=2.0");
+  }
+  return atempos.join(",");
+}
+
+ipcMain.handle('encode', async (event, video, speed) => {
   cleanup();
 
   const FFMPEG = ffmpeg.path;
   const INPUT = video.path;
   const OUTPUT = path.resolve(path.join(
     path.dirname(video.path),
-    path.basename(video.path, path.extname(INPUT)) + "_enc_2x.mp4"
+    path.basename(video.path, path.extname(INPUT)) + `_${speed}xENC.mp4`
   ));
 
-  const args = ["-i", INPUT, "-y", OUTPUT];
+  const args = ["-i", INPUT, "-y"];
+  if (speed !== 1) {
+    args.push("-vf");
+    args.push(`setpts=PTS/${speed.toFixed(1)}`);
+    args.push("-af");
+    const atempo = makeAtempo(speed);
+    args.push(atempo);
+  }
+  args.push(OUTPUT);
   ffmpegProcess = childProcess.spawn(FFMPEG, args);
   ffmpegProcess.stdout.on('data', (data) => {
     ffmpegStdOut = data.toString();
@@ -175,4 +211,25 @@ ipcMain.handle('encode', async (event, video) => {
 
 ipcMain.handle('cancelEncode', async (event) => {
   cleanup();
+})
+
+ipcMain.handle('getEncodeState', async (event) => {
+  let time = null;
+  if (ffmpegStdErr !== null) {
+    for (const text of ffmpegStdErr.split(' ')) {
+      if (text.indexOf('time=') !== -1) {
+        const timeStr = text.replace('time=', '');
+        const [hour, minute, second] = timeStr.split(':');
+        time = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseFloat(second);
+        break;
+      }
+    }
+  }
+  console.log(time);
+  return {
+    status: ffmpegCode,
+    time: time,
+    stdout: ffmpegStdOut,
+    stderr: ffmpegStdErr,
+  }
 })
