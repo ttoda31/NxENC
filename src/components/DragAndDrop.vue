@@ -98,7 +98,7 @@ export default {
   border-radius: 30px;
   display: flex;
   width: 100%;
-  height: 80%;
+  height: 70%;
   text-align: center;
   color: #aaaaaa
 }
