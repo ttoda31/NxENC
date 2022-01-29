@@ -139,7 +139,7 @@ ipcMain.handle('getVideoInfo', async (event, video) => {
   console.log('FFPROBE_STDOUT', ffprobeProcess.stdout.toString());
   console.log('FFPROBE_STDERR', ffprobeProcess.stderr.toString());
   console.log('FFPROBE_CODE', ffprobeProcess.status);
-  if (ffprobeProcess.status == 0) {
+  if (ffprobeProcess.status === 0) {
     const result = JSON.parse(ffprobeProcess.stdout.toString());
     const duration = parseFloat(result.format.duration);
     return { duration, status: 0 }
