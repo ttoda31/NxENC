@@ -123,6 +123,9 @@ export default {
         const result = await window.myAPI.getVideoInfo(this.video);
         if (result.status === 0) {
           this.duration = result.duration;
+        } else {
+          this.$emit('finish-encode');
+          return;
         }
       }
 
