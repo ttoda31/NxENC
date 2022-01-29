@@ -105,7 +105,7 @@ export default {
   border-radius: 15px;
   display: flex;
   width: 100%;
-  height: 40px;
+  height: 80px;
   text-align: center;
   color: #bbbbbb
 }
