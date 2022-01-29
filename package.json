@@ -1,5 +1,7 @@
 {
-  "name": "NxENC",
+  "name": "nxenc",
+  "description": "Batch encode videos to Nx speed.",
+  "author": "toda <t.toda31@gmail> (https://github.com/tknktd/)",
   "version": "0.1.0",
   "private": true,
   "scripts": {
