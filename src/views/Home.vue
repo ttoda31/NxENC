@@ -93,7 +93,6 @@ export default {
   name: 'Home',
   data: () => ({
     videos: [],
-    ddareaHeight: "100%",
     allTargets: {
       x1: false,
       x2: false,
@@ -115,7 +114,6 @@ export default {
           this.videos.push(video);
         }
       }
-      this.ddareaHeight = "25%";
     },
     select(speed) {
       this.allTargets[`x${speed}`] = !this.allTargets[`x${speed}`];
