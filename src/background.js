@@ -6,6 +6,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import * as path from "path";
 import fs from "fs";
 import * as ffmpeg from'ffmpeg-static-electron';
+import * as childProcess from 'child_process';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -46,6 +47,7 @@ async function createWindow() {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
+  cleanup();
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
@@ -126,13 +128,51 @@ ipcMain.handle('findVideos', async (event, files) => {
   return videoFiles;
 })
 
-ipcMain.handle('encodeVideo', async (event, video) => {
+let ffmpegProcess = null;
+let ffmpegStdOut = null;
+let ffmpegStdErr = null;
+let ffmpegCode = null;
+const cleanup = () => {
+  if (ffmpegProcess !== null) {
+    try {
+      ffmpegProcess.kill();
+      console.log("cleanup!");
+    } catch (err) {
+      console.log(err.name + ': ' + err.message);
+    }
+  }
+  ffmpegProcess = null;
+  ffmpegStdOut = null;
+  ffmpegStdErr = null;
+  ffmpegCode = null;
+}
+
+ipcMain.handle('encode', async (event, video) => {
+  cleanup();
+
   const FFMPEG = ffmpeg.path;
   const INPUT = video.path;
-  const OUTPUT = path.dirname(video.path) + 
-                 path.basename(video.path, path.extname(INPUT)) + 
-                 ".mp4";
+  const OUTPUT = path.resolve(path.join(
+    path.dirname(video.path),
+    path.basename(video.path, path.extname(INPUT)) + "_enc_2x.mp4"
+  ));
 
-  const cmd = `"${FFMPEG}" -i "${INPUT}" "${OUTPUT}"`
-  return cmd;
+  const args = ["-i", INPUT, "-y", OUTPUT];
+  ffmpegProcess = childProcess.spawn(FFMPEG, args);
+  ffmpegProcess.stdout.on('data', (data) => {
+    ffmpegStdOut = data.toString();
+    console.log('STDOUT', ffmpegStdOut);
+  });
+  ffmpegProcess.stderr.on('data', (data) => {
+    ffmpegStdErr = data.toString();
+    console.log('STDERR', ffmpegStdErr);
+  });
+  ffmpegProcess.on('close', (code) => {
+    ffmpegCode = code;
+    console.log('CODE', ffmpegCode);
+  });
+})
+
+ipcMain.handle('cancelEncode', async (event) => {
+  cleanup();
 })

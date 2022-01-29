@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('myAPI', {
     windowClose: () => ipcRenderer.send('window-close'),
 
     findVideos: async (files) => await ipcRenderer.invoke('findVideos', files),
-    encodeVideo: async (video) => await ipcRenderer.invoke('encodeVideo', video),
+    encode: async (video) => await ipcRenderer.invoke('encode', video),
+    cancelEncode: async () => await ipcRenderer.invoke('cancelEncode'),
   }
 )
