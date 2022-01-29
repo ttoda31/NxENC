@@ -90,23 +90,23 @@ export default {
 .ddareaFullSize {
   justify-content: center;
   align-items: center;
-  border: 5px dashed #aaaaaa;
+  border: 5px dashed #bbbbbb;
   border-radius: 30px;
   display: flex;
   width: 100%;
   height: 70%;
   text-align: center;
-  color: #aaaaaa
+  color: #bbbbbb
 }
 .ddarea {
   justify-content: center;
   align-items: center;
-  border: 3px dashed #aaaaaa;
+  border: 3px dashed #bbbbbb;
   border-radius: 15px;
   display: flex;
   width: 100%;
   height: 40px;
   text-align: center;
-  color: #aaaaaa
+  color: #bbbbbb
 }
 </style>
