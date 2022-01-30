@@ -21,7 +21,7 @@ async function createWindow() {
     width: 600,
     height: 630,
     // frame: false,
-    // resizable: false,
+    resizable: false,
     // center: true,
     titleBarStyle: "hidden", // add this line
     webPreferences: {
