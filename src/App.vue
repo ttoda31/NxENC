@@ -10,6 +10,19 @@
       :height="titlebarHeight"
       class="draggable"
     >
+      <div class="titlebar-home">
+        <v-btn
+          tile
+          text
+          x-small
+          class="no-draggable"
+          :height="titlebarHeight"
+          @click="toHome"
+        >
+          <v-icon small>home</v-icon>
+        </v-btn>
+      </div>
+
       <v-spacer></v-spacer>
       <v-toolbar-title
         class="font-weight-thin text-subtitle-2 pt-1"
@@ -19,17 +32,6 @@
       <v-spacer></v-spacer>
 
       <div class="titlebar-btn">
-        <v-btn
-          tile
-          text
-          x-small
-          class="no-draggable"
-          :height="titlebarHeight"
-          to="/"
-        >
-          <v-icon small>home</v-icon>
-        </v-btn>
-
         <v-btn
           tile
           text
@@ -63,7 +65,7 @@
 export default {
   name: 'App',
   data: () => ({
-    //
+    titlebarHeight: "30px",
   }),
   mounted() {
   },
@@ -74,12 +76,10 @@ export default {
     windowClose() {
       window.myAPI.windowClose();
     },
+    toHome() {
+      this.$router.push('/');
+    },
   },
-  computed: {
-    titlebarHeight() {
-      return "30px";
-    }
-  }
 };
 </script>
 
@@ -90,6 +90,11 @@ html { overflow-y: auto }
 }
 .no-draggable {
   -webkit-app-region: no-drag;
+}
+.titlebar-home {
+  position: fixed;
+  left: 0;
+  top: 0;
 }
 .titlebar-btn {
   position: fixed;
