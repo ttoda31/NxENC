@@ -84,7 +84,6 @@ export default {
 </script>
 
 <style>
-html { overflow-y: auto }
 .draggable {
   -webkit-app-region: drag;
 }
