@@ -25,6 +25,17 @@
           x-small
           class="no-draggable"
           :height="titlebarHeight"
+          to="/"
+        >
+          <v-icon small>home</v-icon>
+        </v-btn>
+
+        <v-btn
+          tile
+          text
+          x-small
+          class="no-draggable"
+          :height="titlebarHeight"
           @click="windowMinimize"
         >
           <v-icon small>minimize</v-icon>
