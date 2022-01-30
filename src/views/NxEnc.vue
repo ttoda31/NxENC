@@ -112,6 +112,12 @@ export default {
     DragAndDrop,
     VideoCard,
   },
+  beforeDestroy() {
+    if (this.isEncoding) {
+      this.isEncoding = false;
+      window.myAPI.cancel();
+    }
+  },
   methods: {
     videoFound(videos) {
       for (const video of videos) {

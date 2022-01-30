@@ -111,6 +111,12 @@ export default {
     DragAndDrop,
     VideoClipCard,
   },
+  beforeDestroy() {
+    if (this.isClipping) {
+      this.isClipping = false;
+      window.myAPI.cancel();
+    }
+  },
   methods: {
     videoFound(videos) {
       for (const video of videos) {
