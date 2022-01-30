@@ -6,7 +6,7 @@
     <drag-and-drop
       @video-found="videoFound"
       :isFullSize="!existVideo"
-      :isEncoding="isEncoding"
+      :isClipping="isClipping"
       :disabled="thumbnailImage !== null"
       class="mx-1 mr-8 mt-1 mb-4 pr-2"
     >
@@ -36,10 +36,9 @@
           v-for="video of videos"
           :key="video.path"
           @clear-video="clearVideo"
-          @finish-encode="finishEncode"
+          @finish-clip="finishClip"
           :video="video"
-          :allTargets="allTargets"
-          :isEncoding="isEncoding"
+          :isClipping="isClipping"
           :currentVideo="currentVideo"
           :ref="video.path"
           @preview-thumbnail="previewThumbnail"
@@ -72,18 +71,18 @@
           class="mr-2"
           color="grey darken-3"
           style="height: 24px;"
-          :disabled="isEncoding"
+          :disabled="isClipping"
         >
           Clear
         </v-btn>
         <v-btn
           small
-          @click="encode"
+          @click="clip"
           color="red lighten-1"
           style="height: 24px; width: 80px"
         >
-          <div v-if="isEncoding">Stop</div>
-          <div v-else>Encode</div>
+          <div v-if="isClipping">Stop</div>
+          <div v-else>Clip</div>
         </v-btn>
       </v-row>
     </v-card>
@@ -95,18 +94,10 @@ import DragAndDrop from '../components/DragAndDrop.vue'
 import VideoClipCard from '../components/VideoClipCard.vue'
 
 export default {
-  name: 'NxEnc',
+  name: 'NoEnc',
   data: () => ({
     videos: [],
-    allTargets: {
-      x1: false,
-      x2: false,
-      x4: false,
-      x8: false,
-      x16: false,
-      x32: false,
-    },
-    isEncoding: false,
+    isClipping: false,
     currentVideoIndex: null,
     currentVideo: null,
     thumbnailImage: null,
@@ -171,36 +162,32 @@ export default {
     },
     clearAll() {
       this.videos = [];
-      for (const speed of [1, 2, 4, 8, 16 ,32]) {
-        this.allTargets[`x${speed}`] = false;
-      }
     },
     clearVideo(deleted) {
       this.videos = this.videos.filter(video => video !== deleted);
     },
-    encode() {
-      if (this.isEncoding) {
-        window.myAPI.cancelEncode();
+    clip() {
+      if (this.isClipping) {
+        window.myAPI.cancelClip();
         this.currentVideoIndex = null;
         this.currentVideo = null;
-        this.isEncoding = false;
+        this.isClipping = false;
       } else {
         this.currentVideoIndex = 0;
         this.currentVideo = this.videos[this.currentVideoIndex];
-        this.isEncoding = true;
-        this.$refs[this.currentVideo.path][0].encode();
+        this.isClipping = true;
+        this.$refs[this.currentVideo.path][0].clip();
       }
     },
-    finishEncode() {
+    finishClip() {
       this.currentVideoIndex += 1;
       if (this.videos.length === this.currentVideoIndex) {
         console.log("Finish!");
-        this.isEncoding = false;
+        this.isClipping = false;
         return;
       }
-
       this.currentVideo = this.videos[this.currentVideoIndex];
-      this.$refs[this.currentVideo.path][0].encode();
+      this.$refs[this.currentVideo.path][0].clip();
     },
   },
   computed: {

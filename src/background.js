@@ -38,7 +38,7 @@ async function createWindow() {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
+    // if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
@@ -241,7 +241,7 @@ ipcMain.handle('getThumbnail', async (event, video, position) => {
   const args = [
     "-ss", `${position}`,
     "-i", INPUT,
-    "-vf", "scale=-1:100",
+    "-vf", "scale=-1:100",  // height: 100px
     "-vframes", "1",
     "-f", "image2",
     "-"
@@ -255,5 +255,64 @@ ipcMain.handle('getThumbnail', async (event, video, position) => {
     return { jpg, status: 0 }
   } else {
     return { status: thumbnailProcess.status }
+  }
+})
+
+ipcMain.handle('clip', async (event, video, start, end) => {
+  cleanup();
+
+  const FFMPEG = ffmpeg.path;
+  const INPUT = video.path;
+  const OUTPUT = path.resolve(path.join(
+    path.dirname(video.path),
+    path.basename(video.path, path.extname(INPUT)) + `_${start}to${end}.mp4`
+  ));
+
+  const args = [
+    "-ss", `${start}`,
+    "-i", INPUT,
+    "-y",
+    "-t", `${end - start}`,
+    "-c:v", "copy",
+    "-c:a", "copy",
+    OUTPUT
+  ];
+  ffmpegProcess = childProcess.spawn(FFMPEG, args);
+  ffmpegProcess.stdout.on('data', (data) => {
+    ffmpegStdOut = data.toString();
+    console.log('STDOUT', ffmpegStdOut);
+  });
+  ffmpegProcess.stderr.on('data', (data) => {
+    ffmpegStdErr = data.toString();
+    console.log('STDERR', ffmpegStdErr);
+  });
+  ffmpegProcess.on('close', (code) => {
+    ffmpegCode = code;
+    console.log('CODE', ffmpegCode);
+  });
+})
+
+ipcMain.handle('cancelClip', async (event) => {
+  cleanup();
+})
+
+ipcMain.handle('getClipState', async (event) => {
+  let time = null;
+  if (ffmpegStdErr !== null) {
+    for (const text of ffmpegStdErr.split(' ')) {
+      if (text.indexOf('time=') !== -1) {
+        const timeStr = text.replace('time=', '');
+        const [hour, minute, second] = timeStr.split(':');
+        time = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseFloat(second);
+        break;
+      }
+    }
+  }
+  console.log(time);
+  return {
+    status: ffmpegCode,
+    time: time,
+    stdout: ffmpegStdOut,
+    stderr: ffmpegStdErr,
   }
 })

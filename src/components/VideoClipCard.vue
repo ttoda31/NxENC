@@ -12,7 +12,7 @@
         &#x1f39e; {{ video.name }}
       </v-card-subtitle>
     </v-row>
-    <v-row class="ma-0 mt-2 mr-5 pl-2">
+    <v-row class="ma-0 mt-2 mr-5 pl-3">
       <vue-slider
         v-model="range"
         :min="min"
@@ -20,10 +20,15 @@
         dotSize="12"
         width="100%"
         height="3px"
+        @change="change"
         @dragging="dragging"
         @drag-start="dragStart"
         @drag-end="dragEnd"
-        :disabled="duration === null"
+        :disabled="duration === null || isClippingThisVideo"
+        :tooltip="'active'"
+        :tooltip-formatter="formatter"
+        :clickable="false"
+        :useKeyboard="false"
       >
       </vue-slider>
     </v-row>
@@ -36,18 +41,18 @@
       color="grey lighten-1"
       style="right: 9px; top: 10px;"
       @click="clear"
-      :disabled="isEncodingThisVideo"
+      :disabled="isClippingThisVideo"
     >
       <v-icon small>cancel</v-icon>
     </v-btn>
 
     <v-row
-      class="ma-0 mr-5 pt-2 pl-2"
+      class="ma-0 mr-5 pt-2 pl-3"
       style="align-items: center;"
-      v-if="processProgress !== 0"
+      v-if="clipProgress !== 0"
     >
       <v-progress-linear
-        :value="processProgress"
+        :value="clipProgress"
         :buffer-value="100"
         color="amber lighten-2"
         style="width: 100%"
@@ -69,18 +74,13 @@ export default {
     min: 0,
     max: 100,
     range: [0, 100],
-    lastRange: [0, 100],
-    isProcessFinished: false,
-    processProgress: 0,
-    edited: false,
+    isClipFinished: false,
+    clipProgress: 0,
     duration: null,
-    progress: 0,
-    hoge: [1, 4, 32],
   }),
   props: {
     video: Object,
-    allTargets: Object,
-    isEncoding: Boolean,
+    isClipping: Boolean,
     currentVideo: Object,
   },
   mounted() {
@@ -97,6 +97,16 @@ export default {
     dragEnd() {
       console.log("drag-end");
       this.$emit('preview-thumbnail', null, null);
+    },
+    change() {
+      this.clipProgress = 0;
+      this.isClipFinished = false;
+    },
+    formatter(value) {
+      const hour = Math.floor(value / 3600).toString().padStart(2, '0');
+      const minute = Math.floor((value % 3600) / 60).toString().padStart(2, '0');
+      const second = (value % 60).toString().padStart(2, '0');
+      return `${hour}:${minute}:${second}`
     },
     async getDuration() {
       const result = await window.myAPI.getVideoInfo(this.video);
@@ -118,70 +128,49 @@ export default {
     clear() {
       this.$emit('clear-video', this.video);
     },
-    async encode() {
+    async clip() {
       if (this.duration === null) {
-        const result = await window.myAPI.getVideoInfo(this.video);
-        if (result.status === 0) {
-          this.duration = result.duration;
-        } else {
-          this.$emit('finish-encode');
-          return;
-        }
+        this.$emit('finish-clip');
+        return;
       }
 
-      let broken = false;
-      for (const speed of [1, 2, 4, 8, 16, 32]) {
-        if (this.haveToEncode(speed)) {
-          await window.myAPI.encode(this.video, speed);
-          await this.waitForEncode(speed);
-          if (!this.isEncoding) {
-            broken = true;
-            break;
-          }
-        }
+      if (this.haveToClip()) {
+        await window.myAPI.clip(this.video, this.range[0], this.range[1]);
+        await this.waitForClip();
+        if (!this.isClipping) return;
       }
-
-      if (!broken) {
-        this.$emit('finish-encode');
-      }
+      this.$emit('finish-clip');
     },
-    async waitForEncode(speed) {
+    async waitForClip() {
       const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
-      const estimatedLength = this.duration / speed;
+      const estimatedLength = this.range[1] - this.range[0];
       for (;;) {
-        const state = await window.myAPI.getEncodeState();
+        const state = await window.myAPI.getClipState();
         if (state.status === 0) {
-          this.encodeProgress[`x${speed}`] = 100;
-          this.isEncodeFinished[`x${speed}`] = true;
+          this.clipProgress = 100;
+          this.isClipFinished = true;
           break;
         } else if (state.time !== null) {
           const progress = 100 * state.time / estimatedLength
-          this.encodeProgress[`x${speed}`] = Math.min(100, progress);
+          this.clipProgress = Math.min(100, progress);
         }
-        if (!this.isEncoding) {
-          this.encodeProgress[`x${speed}`] = 0;
+        if (!this.isClipping) {
+          this.clipProgress = 0;
           break;
         }
         await sleep(100);
       }
     },
-    haveToEncode(speed) {
-      return this.wantToEncode(speed) && !this.isEncodeFinished[`x${speed}`];
+    haveToClip() {
+      return !this.isClipFinished;
     },
-    wantToEncode(speed) {
-      if (this.individualTargets[`x${speed}`] !== null) {
-        return this.individualTargets[`x${speed}`];
-      } else {
-        return this.allTargets[`x${speed}`];
-      }
-    }
   },
   computed: {
-    isEncodingThisVideo() {
-      return this.isEncoding && this.video === this.currentVideo;
+    isClippingThisVideo() {
+      return this.isClipping && this.video === this.currentVideo;
     },
     bgColor() {
-      if (this.isEncodingThisVideo) {
+      if (this.isClippingThisVideo) {
         return "grey darken-2";
       } else {
         return "grey darken-3";
