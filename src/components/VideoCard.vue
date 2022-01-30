@@ -149,7 +149,7 @@ export default {
       const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
       const estimatedLength = this.duration / speed;
       for (;;) {
-        const state = await window.myAPI.getEncodeState();
+        const state = await window.myAPI.getState();
         if (state.status === 0) {
           this.encodeProgress[`x${speed}`] = 100;
           this.isEncodeFinished[`x${speed}`] = true;

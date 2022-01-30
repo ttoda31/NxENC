@@ -152,6 +152,23 @@ let ffmpegProcess = null;
 let ffmpegStdOut = null;
 let ffmpegStdErr = null;
 let ffmpegCode = null;
+
+const runffmpeg = (args) => {
+  ffmpegProcess = childProcess.spawn(ffmpeg.path, args);
+  ffmpegProcess.stdout.on('data', (data) => {
+    ffmpegStdOut = data.toString();
+    console.log('STDOUT', ffmpegStdOut);
+  });
+  ffmpegProcess.stderr.on('data', (data) => {
+    ffmpegStdErr = data.toString();
+    console.log('STDERR', ffmpegStdErr);
+  });
+  ffmpegProcess.on('close', (code) => {
+    ffmpegCode = code;
+    console.log('CODE', ffmpegCode);
+  });
+}
+
 const cleanup = () => {
   if (ffmpegProcess !== null) {
     try {
@@ -167,6 +184,30 @@ const cleanup = () => {
   ffmpegCode = null;
 }
 
+ipcMain.handle('cancel', async (event) => {
+  cleanup();
+})
+
+ipcMain.handle('getState', async (event) => {
+  let time = null;
+  if (ffmpegStdErr !== null) {
+    for (const text of ffmpegStdErr.split(' ')) {
+      if (text.indexOf('time=') !== -1) {
+        const timeStr = text.replace('time=', '');
+        const [hour, minute, second] = timeStr.split(':');
+        time = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseFloat(second);
+        break;
+      }
+    }
+  }
+  return {
+    status: ffmpegCode,
+    time: time,
+    stdout: ffmpegStdOut,
+    stderr: ffmpegStdErr,
+  }
+})
+
 function makeAtempo(speed) {
   let atempos = [];
   for (let i = 0; i < Math.log2(speed); ++i) {
@@ -178,7 +219,6 @@ function makeAtempo(speed) {
 ipcMain.handle('encode', async (event, video, speed) => {
   cleanup();
 
-  const FFMPEG = ffmpeg.path;
   const INPUT = video.path;
   const OUTPUT = path.resolve(path.join(
     path.dirname(video.path),
@@ -194,44 +234,8 @@ ipcMain.handle('encode', async (event, video, speed) => {
     args.push(atempo);
   }
   args.push(OUTPUT);
-  ffmpegProcess = childProcess.spawn(FFMPEG, args);
-  ffmpegProcess.stdout.on('data', (data) => {
-    ffmpegStdOut = data.toString();
-    console.log('STDOUT', ffmpegStdOut);
-  });
-  ffmpegProcess.stderr.on('data', (data) => {
-    ffmpegStdErr = data.toString();
-    console.log('STDERR', ffmpegStdErr);
-  });
-  ffmpegProcess.on('close', (code) => {
-    ffmpegCode = code;
-    console.log('CODE', ffmpegCode);
-  });
-})
 
-ipcMain.handle('cancelEncode', async (event) => {
-  cleanup();
-})
-
-ipcMain.handle('getEncodeState', async (event) => {
-  let time = null;
-  if (ffmpegStdErr !== null) {
-    for (const text of ffmpegStdErr.split(' ')) {
-      if (text.indexOf('time=') !== -1) {
-        const timeStr = text.replace('time=', '');
-        const [hour, minute, second] = timeStr.split(':');
-        time = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseFloat(second);
-        break;
-      }
-    }
-  }
-  console.log(time);
-  return {
-    status: ffmpegCode,
-    time: time,
-    stdout: ffmpegStdOut,
-    stderr: ffmpegStdErr,
-  }
+  runffmpeg(args);
 })
 
 ipcMain.handle('getThumbnail', async (event, video, position) => {
@@ -261,7 +265,6 @@ ipcMain.handle('getThumbnail', async (event, video, position) => {
 ipcMain.handle('clip', async (event, video, start, end) => {
   cleanup();
 
-  const FFMPEG = ffmpeg.path;
   const INPUT = video.path;
   const OUTPUT = path.resolve(path.join(
     path.dirname(video.path),
@@ -277,42 +280,6 @@ ipcMain.handle('clip', async (event, video, start, end) => {
     "-c:a", "copy",
     OUTPUT
   ];
-  ffmpegProcess = childProcess.spawn(FFMPEG, args);
-  ffmpegProcess.stdout.on('data', (data) => {
-    ffmpegStdOut = data.toString();
-    console.log('STDOUT', ffmpegStdOut);
-  });
-  ffmpegProcess.stderr.on('data', (data) => {
-    ffmpegStdErr = data.toString();
-    console.log('STDERR', ffmpegStdErr);
-  });
-  ffmpegProcess.on('close', (code) => {
-    ffmpegCode = code;
-    console.log('CODE', ffmpegCode);
-  });
-})
 
-ipcMain.handle('cancelClip', async (event) => {
-  cleanup();
-})
-
-ipcMain.handle('getClipState', async (event) => {
-  let time = null;
-  if (ffmpegStdErr !== null) {
-    for (const text of ffmpegStdErr.split(' ')) {
-      if (text.indexOf('time=') !== -1) {
-        const timeStr = text.replace('time=', '');
-        const [hour, minute, second] = timeStr.split(':');
-        time = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseFloat(second);
-        break;
-      }
-    }
-  }
-  console.log(time);
-  return {
-    status: ffmpegCode,
-    time: time,
-    stdout: ffmpegStdOut,
-    stderr: ffmpegStdErr,
-  }
+  runffmpeg(args);
 })

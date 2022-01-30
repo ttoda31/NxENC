@@ -145,7 +145,7 @@ export default {
       const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
       const estimatedLength = this.range[1] - this.range[0];
       for (;;) {
-        const state = await window.myAPI.getClipState();
+        const state = await window.myAPI.getState();
         if (state.status === 0) {
           this.clipProgress = 100;
           this.isClipFinished = true;

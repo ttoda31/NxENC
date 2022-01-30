@@ -168,7 +168,7 @@ export default {
     },
     clip() {
       if (this.isClipping) {
-        window.myAPI.cancelClip();
+        window.myAPI.cancel();
         this.currentVideoIndex = null;
         this.currentVideo = null;
         this.isClipping = false;

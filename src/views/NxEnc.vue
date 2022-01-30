@@ -134,7 +134,7 @@ export default {
     },
     encode() {
       if (this.isEncoding) {
-        window.myAPI.cancelEncode();
+        window.myAPI.cancel();
         this.currentVideoIndex = null;
         this.currentVideo = null;
         this.isEncoding = false;
