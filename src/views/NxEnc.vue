@@ -14,7 +14,7 @@
     <v-container
       v-if="existVideo"
       class="pa-0"
-      style="height: 66%"
+      style="height: 63%"
     >
       <perfect-scrollbar>
         <video-card

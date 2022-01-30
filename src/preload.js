@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld('myAPI', {
     encode: async (video, speed) => await ipcRenderer.invoke('encode', video, speed),
     cancelEncode: async () => await ipcRenderer.invoke('cancelEncode'),
     getEncodeState: async () => await ipcRenderer.invoke('getEncodeState'),
+    getThumbnail: async (video, position) => await ipcRenderer.invoke('getThumbnail', video, position),
   }
 )

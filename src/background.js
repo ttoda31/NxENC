@@ -233,3 +233,27 @@ ipcMain.handle('getEncodeState', async (event) => {
     stderr: ffmpegStdErr,
   }
 })
+
+ipcMain.handle('getThumbnail', async (event, video, position) => {
+  const FFMPEG = ffmpeg.path;
+  const INPUT = video.path;
+
+  const args = [
+    "-ss", `${position}`,
+    "-i", INPUT,
+    "-vf", "scale=-1:100",
+    "-vframes", "1",
+    "-f", "image2",
+    "-"
+  ];
+  const thumbnailProcess = childProcess.spawnSync(FFMPEG, args);
+  // console.log('THUMBNAIL_STDOUT', thumbnailProcess.stdout.toString().slice(0, 100));
+  console.log('THUMBNAIL_STDERR', thumbnailProcess.stderr.toString());
+  console.log('THUMBNAIL_CODE', thumbnailProcess.status);
+  if (thumbnailProcess.status === 0) {
+    const jpg = thumbnailProcess.stdout.toString('base64');
+    return { jpg, status: 0 }
+  } else {
+    return { status: thumbnailProcess.status }
+  }
+})

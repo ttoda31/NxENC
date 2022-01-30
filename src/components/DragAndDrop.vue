@@ -27,6 +27,7 @@ export default {
   }),
   props: {
     isFullSize: Boolean,
+    disabled: Boolean,
   },
   methods: {
     onDrop(event) {
@@ -34,6 +35,7 @@ export default {
       if (!event) return;
       if (!event.dataTransfer) return;
       if (event.dataTransfer.files.length === 0) return;
+      if (this.disabled) return;
       const files = [];
       for (const file of event.dataTransfer.files) {
         files.push(file.path);
@@ -56,13 +58,15 @@ export default {
     ddareaClass() {
       if (this.isFullSize) {
         return "ddareaFullSize"
+      } else if (this.disabled) {
+        return "ddareaDisabled text-body-2"
       } else {
         return "ddarea text-body-2"
       }
     },
     ddareaBgColor() {
       let background;
-      if (this.drag) {
+      if (this.drag && !this.disabled) {
         background = "#666666";
       } else {
         background = "none";
@@ -105,8 +109,19 @@ export default {
   border-radius: 15px;
   display: flex;
   width: 100%;
-  height: 80px;
+  height: 100px;
   text-align: center;
   color: #bbbbbb
+}
+.ddareaDisabled {
+  justify-content: center;
+  align-items: center;
+  border: 3px dashed #777777;
+  border-radius: 15px;
+  display: flex;
+  width: 100%;
+  height: 100px;
+  text-align: center;
+  color: #777777
 }
 </style>

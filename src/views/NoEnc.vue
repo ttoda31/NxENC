@@ -7,14 +7,29 @@
       @video-found="videoFound"
       :isFullSize="!existVideo"
       :isEncoding="isEncoding"
+      :disabled="thumbnailImage !== null"
       class="mx-1 mr-8 mt-1 mb-4 pr-2"
     >
     </drag-and-drop>
 
+    <v-card
+      v-if="thumbnailImage !== null"
+      class="pa-2 thumbnail-card"
+      dark
+      elevation="2"
+    >
+      <v-img
+        contain
+        :src="thumbnailImage"
+        height="100px"
+      >
+      </v-img>
+    </v-card>
+
     <v-container
       v-if="existVideo"
       class="pa-0"
-      style="height: 71%"
+      style="height: 68%"
     >
       <perfect-scrollbar>
         <video-clip-card
@@ -27,6 +42,7 @@
           :isEncoding="isEncoding"
           :currentVideo="currentVideo"
           :ref="video.path"
+          @preview-thumbnail="previewThumbnail"
         ></video-clip-card>
         <v-spacer></v-spacer>
       </perfect-scrollbar>
@@ -93,6 +109,12 @@ export default {
     isEncoding: false,
     currentVideoIndex: null,
     currentVideo: null,
+    thumbnailImage: null,
+    thumbnailVideo: null,
+    thumbnailPosition: null,
+    lastThumbnailVideo: null,
+    lastThumbnailPosition: null,
+    isGettingThumbnail: false,
   }),
   components: {
     DragAndDrop,
@@ -106,8 +128,46 @@ export default {
         }
       }
     },
-    select(speed) {
-      this.allTargets[`x${speed}`] = !this.allTargets[`x${speed}`];
+    previewThumbnail(video, position) {
+      if (position === null) {
+        this.thumbnailVideo = null;
+        this.thumbnailPosition = null;
+        this.thumbnailImage = null;
+      } else {
+        this.thumbnailVideo = video;
+        this.thumbnailPosition = position;
+      }
+
+      if (!this.isGettingThumbnail) {
+        this.getThumbnail();
+      }
+    },
+    async getThumbnail() {
+      this.isGettingThumbnail = true;
+      for (;;) {
+        if (this.thumbnailPosition === null) {
+          console.log("break");
+          this.thumbnailImage = null;
+          break;
+        }
+        if (
+          this.lastThumbnailVideo === this.thumbnailVideo &&
+          this.lastThumbnailPosition === this.thumbnailPosition
+        ) {
+          console.log("break");
+          break;
+        }
+        const result = await window.myAPI.getThumbnail(
+          this.thumbnailVideo,
+          this.thumbnailPosition
+        );
+        if (result.status == 0) {
+          this.thumbnailImage = "data:image/jpeg;base64," + result.jpg;
+        }
+        this.lastThumbnailVideo = this.thumbnailVideo;
+        this.lastThumbnailPosition = this.thumbnailPosition;
+      }
+      this.isGettingThumbnail = false;
     },
     clearAll() {
       this.videos = [];
@@ -147,16 +207,6 @@ export default {
     existVideo() {
       return this.videos.length !== 0;
     },
-    chipColor: function () {
-      const self = this;
-      return function (speed) {
-        if (self.allTargets[`x${speed}`]) {
-          return "blue";
-        } else {
-          return "grey darken-2";
-        }
-      }
-    }
   }
 }
 </script>
@@ -164,5 +214,13 @@ export default {
 <style scoped>
 .ps {
   height: 100%;
+}
+.thumbnail-card {
+  width: min-content;
+  position: absolute;
+  margin: auto;
+  top: 8px;
+  right: 0;
+  left: 0;
 }
 </style>
