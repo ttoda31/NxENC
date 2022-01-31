@@ -1,4 +1,4 @@
-# nxenc
+# NxENC
 
 **A few tools to help you process videos quickly.**
 
