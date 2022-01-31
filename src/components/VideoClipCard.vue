@@ -7,7 +7,7 @@
     <v-row class="ma-0 mr-5">
       <v-card-subtitle
         class="text-caption pa-0 text-truncate"
-        style="max-width: 240px"
+        style="max-width: 460px"
       >
         &#x1f39e; {{ video.name }}
       </v-card-subtitle>
