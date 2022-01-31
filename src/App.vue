@@ -69,6 +69,11 @@ export default {
     titlebarHeight: "30px",
   }),
   mounted() {
+    window.addEventListener('keyup', this.keyup, true);
+    
+  },
+  beforeDestroy() {
+    window.removeEventListener('keyup', this.keyup, true);
   },
   methods: {
     windowMinimize() {
@@ -79,6 +84,11 @@ export default {
     },
     toHome() {
       this.$router.push('/', () => {});
+    },
+    keyup(event) {
+      if (event.key === "Escape") {
+        window.myAPI.openDevTools();
+      }
     },
   },
 };
