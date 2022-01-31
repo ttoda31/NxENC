@@ -4,6 +4,7 @@
       @dragover.prevent="drag = true"
       @dragleave.prevent="drag = false"
       @drop.prevent="onDrop"
+      class="mx-1"
       :class="ddareaClass"
       :style="ddareaBgColor"
     >
@@ -59,9 +60,9 @@ export default {
       if (this.isFullSize) {
         return "ddareaFullSize"
       } else if (this.disabled) {
-        return "ddareaDisabled text-body-2"
+        return "ddareaDisabled"
       } else {
-        return "ddarea text-body-2"
+        return "ddarea"
       }
     },
     ddareaBgColor() {
@@ -105,8 +106,8 @@ export default {
 .ddarea {
   justify-content: center;
   align-items: center;
-  border: 3px dashed #bbbbbb;
-  border-radius: 15px;
+  border: 4px dashed #bbbbbb;
+  border-radius: 30px;
   display: flex;
   width: 100%;
   height: 100px;
@@ -116,8 +117,8 @@ export default {
 .ddareaDisabled {
   justify-content: center;
   align-items: center;
-  border: 3px dashed #777777;
-  border-radius: 15px;
+  border: 4px dashed #777777;
+  border-radius: 30px;
   display: flex;
   width: 100%;
   height: 100px;
