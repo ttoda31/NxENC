@@ -154,6 +154,8 @@ let ffmpegStdErr = null;
 let ffmpegCode = null;
 
 const runffmpeg = (args) => {
+  cleanup();
+
   ffmpegProcess = childProcess.spawn(ffmpeg.path, args);
   ffmpegProcess.stdout.on('data', (data) => {
     ffmpegStdOut = data.toString();
@@ -217,8 +219,6 @@ function makeAtempo(speed) {
 }
 
 ipcMain.handle('encode', async (event, video, speed) => {
-  cleanup();
-
   const INPUT = video.path;
   const OUTPUT = path.resolve(path.join(
     path.dirname(video.path),
@@ -264,8 +264,6 @@ ipcMain.handle('getThumbnail', async (event, video, position) => {
 })
 
 ipcMain.handle('clip', async (event, video, start, end) => {
-  cleanup();
-
   const INPUT = video.path;
   const OUTPUT = path.resolve(path.join(
     path.dirname(video.path),
