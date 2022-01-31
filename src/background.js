@@ -246,16 +246,17 @@ ipcMain.handle('getThumbnail', async (event, video, position) => {
     "-ss", `${position}`,
     "-i", INPUT,
     "-vf", "scale=-1:100",  // height: 100px
+    "-r", "1",
     "-vframes", "1",
-    "-f", "image2",
+    "-f", "image2pipe",
     "-"
   ];
-  const thumbnailProcess = childProcess.spawnSync(FFMPEG, args);
-  // console.log('THUMBNAIL_STDOUT', thumbnailProcess.stdout.toString().slice(0, 100));
-  console.log('THUMBNAIL_STDERR', thumbnailProcess.stderr.toString());
+  const thumbnailProcess = childProcess.spawnSync(FFMPEG, args, {encoding: "base64"});
+  // console.log('THUMBNAIL_STDOUT', thumbnailProcess.stdout.slice(0, 100));
+  // console.log('THUMBNAIL_STDERR', thumbnailProcess.stderr.toString());
   console.log('THUMBNAIL_CODE', thumbnailProcess.status);
   if (thumbnailProcess.status === 0) {
-    const jpg = thumbnailProcess.stdout.toString('base64');
+    const jpg = thumbnailProcess.stdout;
     return { jpg, status: 0 }
   } else {
     return { status: thumbnailProcess.status }
@@ -275,9 +276,11 @@ ipcMain.handle('clip', async (event, video, start, end) => {
     "-ss", `${start}`,
     "-i", INPUT,
     "-y",
+    "-ss", "0",
     "-t", `${end - start}`,
     "-c:v", "copy",
     "-c:a", "copy",
+    "-async", "1",
     OUTPUT
   ];
 
