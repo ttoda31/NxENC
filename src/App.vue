@@ -78,7 +78,7 @@ export default {
       window.myAPI.windowClose();
     },
     toHome() {
-      this.$router.push('/');
+      this.$router.push('/', () => {});
     },
   },
 };
