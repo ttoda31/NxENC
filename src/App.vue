@@ -27,7 +27,7 @@
       <v-toolbar-title
         class="font-weight-thin text-subtitle-2 pt-1"
       >
-        NxENC
+        NxENC - {{ version }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
 
@@ -65,6 +65,7 @@
 export default {
   name: 'App',
   data: () => ({
+    version: require('../package.json').version,
     titlebarHeight: "30px",
   }),
   mounted() {
