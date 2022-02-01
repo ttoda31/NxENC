@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('myAPI', {
     clip: async (video, start, end) => await ipcRenderer.invoke('clip', video, start, end),
     cancel: async () => await ipcRenderer.invoke('cancel'),
     getState: async () => await ipcRenderer.invoke('getState'),
-    getThumbnail: async (video, position) => await ipcRenderer.invoke('getThumbnail', video, position),
+    getThumbnail: async (video, position) => ipcRenderer.invoke('getThumbnail', video, position),
+
+    on: (channel, callback) => ipcRenderer.on(channel, (event, argv)=>callback(event, argv)),
   }
 )

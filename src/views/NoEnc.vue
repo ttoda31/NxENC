@@ -111,6 +111,16 @@ export default {
     DragAndDrop,
     VideoClipCard,
   },
+  mounted() {
+    window.myAPI.on("renderThumbnail", (event, thumbnail)=>{
+      if (thumbnail.status === 0 && this.thumbnailPosition !== null) {
+        this.thumbnailImage = "data:image/jpeg;base64," + thumbnail.jpg;
+      } else {
+        this.thumbnailImage = null;
+      }
+      this.isGettingThumbnail = false;
+    });
+  },
   beforeDestroy() {
     if (this.isClipping) {
       this.isClipping = false;
@@ -125,7 +135,7 @@ export default {
         }
       }
     },
-    previewThumbnail(video, position) {
+    async previewThumbnail(video, position) {
       if (position === null) {
         this.thumbnailVideo = null;
         this.thumbnailPosition = null;
@@ -133,38 +143,11 @@ export default {
       } else {
         this.thumbnailVideo = video;
         this.thumbnailPosition = position;
-      }
-
-      if (!this.isGettingThumbnail) {
-        this.getThumbnail();
-      }
-    },
-    async getThumbnail() {
-      this.isGettingThumbnail = true;
-      for (;;) {
-        if (this.thumbnailPosition === null) {
-          console.log("break");
-          this.thumbnailImage = null;
-          break;
+        if (!this.isGettingThumbnail) {
+          this.isGettingThumbnail = true;
+          window.myAPI.getThumbnail(this.thumbnailVideo, this.thumbnailPosition);
         }
-        if (
-          this.lastThumbnailVideo === this.thumbnailVideo &&
-          this.lastThumbnailPosition === this.thumbnailPosition
-        ) {
-          console.log("break");
-          break;
-        }
-        const result = await window.myAPI.getThumbnail(
-          this.thumbnailVideo,
-          this.thumbnailPosition
-        );
-        if (result.status == 0) {
-          this.thumbnailImage = "data:image/jpeg;base64," + result.jpg;
-        }
-        this.lastThumbnailVideo = this.thumbnailVideo;
-        this.lastThumbnailPosition = this.thumbnailPosition;
       }
-      this.isGettingThumbnail = false;
     },
     clearAll() {
       this.videos = [];

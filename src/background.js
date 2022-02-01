@@ -15,9 +15,10 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+let win;
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 600,
     height: 630,
     // frame: false,
@@ -44,11 +45,11 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
-
-  ipcMain.handle('openDevTools', async () => {
-    win.webContents.openDevTools();
-  })
 }
+
+ipcMain.handle('openDevTools', async () => {
+  win.webContents.openDevTools();
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -242,10 +243,27 @@ ipcMain.handle('encode', async (event, video, speed) => {
   runffmpeg(args);
 })
 
-ipcMain.handle('getThumbnail', async (event, video, position) => {
-  const FFMPEG = ffmpeg.path;
-  const INPUT = video.path;
+let isGenerating = false;
+async function sendThumbnail(args) {
+  if (isGenerating) return;
+  isGenerating = true;
+  const thumbnailProcess = childProcess.spawnSync(ffmpeg.path, args, {encoding: "base64"});
+  // console.log('THUMBNAIL_STDOUT', thumbnailProcess.stdout.slice(0, 100));
+  // console.log('THUMBNAIL_STDERR', thumbnailProcess.stderr.toString());
+  console.log('THUMBNAIL_CODE', thumbnailProcess.status);
+  let thumbnail;
+  if (thumbnailProcess.status === 0) {
+    const jpg = thumbnailProcess.stdout;
+    thumbnail = { jpg, status: 0 }
+  } else {
+    thumbnail =  { status: thumbnailProcess.status }
+  }
+  win.webContents.send('renderThumbnail', thumbnail);
+  isGenerating = false;
+}
 
+ipcMain.handle('getThumbnail', async (event, video, position) => {
+  const INPUT = video.path;
   const args = [
     "-ss", `${position}`,
     "-i", INPUT,
@@ -255,16 +273,7 @@ ipcMain.handle('getThumbnail', async (event, video, position) => {
     "-f", "image2pipe",
     "-"
   ];
-  const thumbnailProcess = childProcess.spawnSync(FFMPEG, args, {encoding: "base64"});
-  // console.log('THUMBNAIL_STDOUT', thumbnailProcess.stdout.slice(0, 100));
-  // console.log('THUMBNAIL_STDERR', thumbnailProcess.stderr.toString());
-  console.log('THUMBNAIL_CODE', thumbnailProcess.status);
-  if (thumbnailProcess.status === 0) {
-    const jpg = thumbnailProcess.stdout;
-    return { jpg, status: 0 }
-  } else {
-    return { status: thumbnailProcess.status }
-  }
+  sendThumbnail(args);
 })
 
 ipcMain.handle('clip', async (event, video, start, end) => {
