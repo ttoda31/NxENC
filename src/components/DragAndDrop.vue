@@ -1,12 +1,13 @@
 <template>
   <div :class="wrapClass">
-    <div id="ddarea" style=""
+    <v-card id="ddarea"
       @dragover.prevent="drag = true"
       @dragleave.prevent="drag = false"
       @drop.prevent="onDrop"
       class="mx-1"
       :class="ddareaClass"
       :style="ddareaBgColor"
+      :elevation="drag ? 16 : 0"
     >
       <div>
         <h3>
@@ -16,7 +17,7 @@
           Only ".mp4" and ".mov" files are currently supported.
         </span>
       </div>
-    </div>
+    </v-card>
   </div>
 </template>
 
