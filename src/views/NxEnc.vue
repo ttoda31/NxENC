@@ -17,7 +17,7 @@
       style="height: 63%"
     >
       <perfect-scrollbar>
-        <video-card
+        <nx-enc-card
           v-for="video of videos"
           :key="video.path"
           @clear-video="clearVideo"
@@ -27,7 +27,7 @@
           :isEncoding="isEncoding"
           :currentVideo="currentVideo"
           :ref="video.path"
-        ></video-card>
+        ></nx-enc-card>
         <v-spacer></v-spacer>
       </perfect-scrollbar>
     </v-container>
@@ -90,7 +90,7 @@
 
 <script>
 import DragAndDrop from '../components/DragAndDrop.vue'
-import VideoCard from '../components/VideoCard.vue'
+import NxEncCard from '../components/NxEncCard.vue'
 
 export default {
   name: 'NxEnc',
@@ -110,7 +110,7 @@ export default {
   }),
   components: {
     DragAndDrop,
-    VideoCard,
+    NxEncCard,
   },
   beforeDestroy() {
     if (this.isEncoding) {

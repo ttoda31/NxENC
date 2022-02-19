@@ -32,7 +32,7 @@
       style="height: 68%"
     >
       <perfect-scrollbar>
-        <video-clip-card
+        <no-enc-card
           v-for="video of videos"
           :key="video.path"
           @clear-video="clearVideo"
@@ -42,7 +42,7 @@
           :currentVideo="currentVideo"
           :ref="video.path"
           @preview-thumbnail="previewThumbnail"
-        ></video-clip-card>
+        ></no-enc-card>
         <v-spacer></v-spacer>
       </perfect-scrollbar>
     </v-container>
@@ -91,7 +91,7 @@
 
 <script>
 import DragAndDrop from '../components/DragAndDrop.vue'
-import VideoClipCard from '../components/VideoClipCard.vue'
+import NoEncCard from '../components/NoEncCard.vue'
 
 export default {
   name: 'NoEnc',
@@ -109,7 +109,7 @@ export default {
   }),
   components: {
     DragAndDrop,
-    VideoClipCard,
+    NoEncCard,
   },
   mounted() {
     window.myAPI.on("renderThumbnail", (event, thumbnail)=>{

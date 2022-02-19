@@ -68,7 +68,7 @@
 
 <script>
 export default {
-  name: 'VideoCard',
+  name: 'NxEncCard',
   data: () => ({
     individualTargets: {
       x1: null,
