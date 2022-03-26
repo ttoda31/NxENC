@@ -7,9 +7,24 @@
       @video-found="videoFound"
       :isFullSize="!existVideo"
       :isEncoding="isEncoding"
+      :disabled="thumbnailImage !== null"
       class="mx-1 mr-8 mt-1 mb-4 pr-2"
     >
     </drag-and-drop>
+
+    <v-card
+      v-if="thumbnailImage !== null"
+      class="pa-2 thumbnail-card"
+      dark
+      elevation="2"
+    >
+      <v-img
+        contain
+        :src="thumbnailImage"
+        height="100px"
+      >
+      </v-img>
+    </v-card>
 
     <v-container
       v-if="existVideo"
@@ -27,6 +42,7 @@
           :isEncoding="isEncoding"
           :currentVideo="currentVideo"
           :ref="video.path"
+          @preview-thumbnail="previewThumbnail"
         ></nx-enc-card>
         <v-spacer></v-spacer>
       </perfect-scrollbar>
@@ -107,10 +123,26 @@ export default {
     isEncoding: false,
     currentVideoIndex: null,
     currentVideo: null,
+    thumbnailImage: null,
+    thumbnailVideo: null,
+    thumbnailPosition: null,
+    lastThumbnailVideo: null,
+    lastThumbnailPosition: null,
+    isGettingThumbnail: false,
   }),
   components: {
     DragAndDrop,
     NxEncCard,
+  },
+  mounted() {
+    window.myAPI.on("renderThumbnail", (event, thumbnail)=>{
+      if (thumbnail.status === 0 && this.thumbnailPosition !== null) {
+        this.thumbnailImage = "data:image/jpeg;base64," + thumbnail.jpg;
+      } else {
+        this.thumbnailImage = null;
+      }
+      this.isGettingThumbnail = false;
+    });
   },
   beforeDestroy() {
     if (this.isEncoding) {
@@ -162,6 +194,20 @@ export default {
       this.currentVideo = this.videos[this.currentVideoIndex];
       this.$refs[this.currentVideo.path][0].encode();
     },
+    async previewThumbnail(video, position) {
+      if (position === null) {
+        this.thumbnailVideo = null;
+        this.thumbnailPosition = null;
+        this.thumbnailImage = null;
+      } else {
+        this.thumbnailVideo = video;
+        this.thumbnailPosition = position;
+        if (!this.isGettingThumbnail) {
+          this.isGettingThumbnail = true;
+          window.myAPI.getThumbnail(this.thumbnailVideo, this.thumbnailPosition);
+        }
+      }
+    },
   },
   computed: {
     existVideo() {
@@ -184,5 +230,13 @@ export default {
 <style scoped>
 .ps {
   height: 100%;
+}
+.thumbnail-card {
+  width: min-content;
+  position: absolute;
+  margin: auto;
+  top: 8px;
+  right: 0;
+  left: 0;
 }
 </style>

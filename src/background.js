@@ -223,14 +223,23 @@ function makeAtempo(speed) {
   return atempos.join(",");
 }
 
-ipcMain.handle('encode', async (event, video, speed) => {
+ipcMain.handle('encode', async (event, video, speed, start, end) => {
   const INPUT = video.path;
   const OUTPUT = path.resolve(path.join(
     path.dirname(video.path),
-    path.basename(video.path, path.extname(INPUT)) + `_${speed}xENC.mp4`
+    path.basename(
+      video.path,
+      path.extname(INPUT)) + `_${start}to${end}` + `_${speed}xENC.mp4`
   ));
 
-  const args = ["-i", INPUT, "-y"];
+  const args = [
+    "-ss", `${start}`,
+    "-i", INPUT,
+    "-y",
+    "-ss", "0",
+    "-t", `${(end - start) / speed}`,
+  ];
+
   if (speed !== 1) {
     args.push("-vf");
     args.push(`setpts=PTS/${speed.toFixed(1)}`);

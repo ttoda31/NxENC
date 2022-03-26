@@ -24,6 +24,28 @@
         {{speed}}x
       </v-chip>
     </v-row>
+
+    <v-row class="ma-0 mt-2 mr-5 pl-3">
+      <vue-slider
+        v-model="range"
+        :min="min"
+        :max="max"
+        dotSize="12"
+        width="100%"
+        height="3px"
+        @change="change"
+        @dragging="dragging"
+        @drag-start="dragStart"
+        @drag-end="dragEnd"
+        :disabled="duration === null || isEncodingThisVideo"
+        :tooltip="'active'"
+        :tooltip-formatter="formatter"
+        :clickable="false"
+        :useKeyboard="false"
+      >
+      </vue-slider>
+    </v-row>
+
     <v-btn
       icon
       dark
@@ -67,9 +89,17 @@
 </template>
 
 <script>
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 export default {
   name: 'NxEncCard',
+  components: {
+    VueSlider,
+  },
   data: () => ({
+    min: 0,
+    max: 100,
+    range: [0, 100],
     individualTargets: {
       x1: null,
       x2: null,
@@ -105,6 +135,9 @@ export default {
     isEncoding: Boolean,
     currentVideo: Object,
   },
+  mounted() {
+    this.getDuration();
+  },
   methods: {
     select(speed) {
       const current = this.individualTargets[`x${speed}`];
@@ -117,6 +150,23 @@ export default {
     },
     clear() {
       this.$emit('clear-video', this.video);
+    },
+    async getDuration() {
+      const result = await window.myAPI.getVideoInfo(this.video);
+      if (result.status === 0) {
+        this.duration = result.duration;
+        if (this.duration > this.max) {
+          this.max = Math.floor(this.duration);
+          this.$nextTick(() => {
+            this.range = [0, Math.floor(this.duration)];
+          });
+        } else {
+          this.range = [0, Math.floor(this.duration)];
+          this.$nextTick(() => {
+            this.max = Math.floor(this.duration);
+          });
+        }
+      }
     },
     async encode() {
       if (this.duration === null) {
@@ -132,7 +182,7 @@ export default {
       let broken = false;
       for (const speed of [1, 2, 4, 8, 16, 32]) {
         if (this.haveToEncode(speed)) {
-          await window.myAPI.encode(this.video, speed);
+          await window.myAPI.encode(this.video, speed, this.range[0], this.range[1]);
           await this.waitForEncode(speed);
           if (!this.isEncoding) {
             broken = true;
@@ -147,7 +197,7 @@ export default {
     },
     async waitForEncode(speed) {
       const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
-      const estimatedLength = this.duration / speed;
+      const estimatedLength = (this.range[1] - this.range[0]) / speed;
       for (;;) {
         const state = await window.myAPI.getState();
         if (state.status === 0) {
@@ -174,7 +224,30 @@ export default {
       } else {
         return this.allTargets[`x${speed}`];
       }
-    }
+    },
+    dragStart(index) {
+      console.log("drag-start");
+      this.$emit('preview-thumbnail', this.video, this.range[index]);
+    },
+    dragging(value, index) {
+      this.$emit('preview-thumbnail', this.video, value[index]);
+    },
+    dragEnd() {
+      console.log("drag-end");
+      this.$emit('preview-thumbnail', null, null);
+    },
+    change() {
+      for (const speed of [1, 2, 4, 8, 16, 32]) {
+        this.encodeProgress[`x${speed}`] = 0;
+        this.isEncodeFinished[`x${speed}`] = false;
+      }
+    },
+    formatter(value) {
+      const hour = Math.floor(value / 3600).toString().padStart(2, '0');
+      const minute = Math.floor((value % 3600) / 60).toString().padStart(2, '0');
+      const second = (value % 60).toString().padStart(2, '0');
+      return `${hour}:${minute}:${second}`
+    },
   },
   computed: {
     prefix() {
