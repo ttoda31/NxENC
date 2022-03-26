@@ -2,7 +2,7 @@
   "name": "nxenc",
   "description": "A few tools to help you process videos quickly.",
   "author": "toda <t.toda31@gmail> (https://github.com/tknktd/)",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
