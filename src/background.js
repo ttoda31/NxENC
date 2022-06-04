@@ -284,25 +284,3 @@ ipcMain.handle('getThumbnail', async (event, video, position) => {
   ];
   sendThumbnail(args);
 })
-
-ipcMain.handle('clip', async (event, video, start, end) => {
-  const INPUT = video.path;
-  const OUTPUT = path.resolve(path.join(
-    path.dirname(video.path),
-    path.basename(video.path, path.extname(INPUT)) + `_${start}to${end}.mp4`
-  ));
-
-  const args = [
-    "-ss", `${start}`,
-    "-i", INPUT,
-    "-y",
-    "-ss", "0",
-    "-t", `${end - start}`,
-    "-c:v", "copy",
-    "-c:a", "copy",
-    "-async", "1",
-    OUTPUT
-  ];
-
-  runffmpeg(args);
-})

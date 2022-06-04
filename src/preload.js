@@ -9,7 +9,6 @@ contextBridge.exposeInMainWorld('myAPI', {
     findVideos: async (files) => await ipcRenderer.invoke('findVideos', files),
     getVideoInfo: async (video) => await ipcRenderer.invoke('getVideoInfo', video),
     encode: async (video, speed, start, end) => await ipcRenderer.invoke('encode', video, speed, start, end),
-    clip: async (video, start, end) => await ipcRenderer.invoke('clip', video, start, end),
     cancel: async () => await ipcRenderer.invoke('cancel'),
     getState: async () => await ipcRenderer.invoke('getState'),
     getThumbnail: async (video, position) => ipcRenderer.invoke('getThumbnail', video, position),
