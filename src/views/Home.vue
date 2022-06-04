@@ -32,7 +32,7 @@
       style="height: 63%"
     >
       <perfect-scrollbar>
-        <nx-enc-card
+        <video-card
           v-for="video of videos"
           :key="video.path"
           @clear-video="clearVideo"
@@ -43,7 +43,7 @@
           :currentVideo="currentVideo"
           :ref="video.path"
           @preview-thumbnail="previewThumbnail"
-        ></nx-enc-card>
+        ></video-card>
         <v-spacer></v-spacer>
       </perfect-scrollbar>
     </v-container>
@@ -106,7 +106,7 @@
 
 <script>
 import DragAndDrop from '../components/DragAndDrop.vue'
-import NxEncCard from '../components/NxEncCard.vue'
+import VideoCard from '../components/VideoCard.vue'
 
 export default {
   name: 'Home',
@@ -132,7 +132,7 @@ export default {
   }),
   components: {
     DragAndDrop,
-    NxEncCard,
+    VideoCard,
   },
   mounted() {
     window.myAPI.on("renderThumbnail", (event, thumbnail)=>{
