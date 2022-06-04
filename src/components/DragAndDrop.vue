@@ -97,33 +97,33 @@ export default {
   justify-content: center;
   align-items: center;
   border: 5px dashed #bbbbbb;
-  border-radius: 30px;
+  border-radius: 30px !important;
   display: flex;
   width: 100%;
   height: 70%;
   text-align: center;
-  color: #bbbbbb
+  color: #bbbbbb !important;
 }
 .ddarea {
   justify-content: center;
   align-items: center;
   border: 4px dashed #bbbbbb;
-  border-radius: 30px;
+  border-radius: 30px !important;
   display: flex;
   width: 100%;
   height: 100px;
   text-align: center;
-  color: #bbbbbb
+  color: #bbbbbb !important;
 }
 .ddareaDisabled {
   justify-content: center;
   align-items: center;
   border: 4px dashed #777777;
-  border-radius: 30px;
+  border-radius: 30px !important;
   display: flex;
   width: 100%;
   height: 100px;
   text-align: center;
-  color: #777777
+  color: #777777 !important;
 }
 </style>

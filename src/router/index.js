@@ -10,16 +10,6 @@ const routes = [
     name: 'Home',
     component: Home
   },
-  {
-    path: '/nxenc',
-    name: 'NxEnc',
-    component: () => import(/* webpackChunkName: "nxenc" */ '../views/NxEnc.vue')
-  },
-  {
-    path: '/noenc',
-    name: 'NoEnc',
-    component: () => import(/* webpackChunkName: "noenc" */ '../views/NoEnc.vue')
-  },
 ]
 
 const router = new VueRouter({

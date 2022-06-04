@@ -10,19 +10,6 @@
       :height="titlebarHeight"
       class="draggable"
     >
-      <div class="titlebar-home">
-        <v-btn
-          tile
-          text
-          x-small
-          class="no-draggable"
-          :height="titlebarHeight"
-          @click="toHome"
-        >
-          <v-icon small>home</v-icon>
-        </v-btn>
-      </div>
-
       <v-spacer></v-spacer>
       <v-toolbar-title
         class="font-weight-thin text-subtitle-2 pt-1"
