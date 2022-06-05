@@ -2,7 +2,7 @@
   "name": "nxenc",
   "description": "An Electron app for quick batch processing of videos.",
   "author": "toda <t.toda31@gmail> (https://github.com/tknktd/)",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
