@@ -229,7 +229,7 @@ ipcMain.handle('encode', async (event, video, speed, start, end) => {
     path.dirname(video.path),
     path.basename(
       video.path,
-      path.extname(INPUT)) + `_${start}to${end}` + `_${speed}xENC.mp4`
+      path.extname(INPUT)) + `_[${start}-${end}]` + `_${speed}xENC.mp4`
   ));
 
   const args = [
