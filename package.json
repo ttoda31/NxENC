@@ -19,7 +19,7 @@
     "ffmpeg-static-electron": "^2.0.3",
     "ffprobe-static-electron": "^2.0.2",
     "install": "^0.13.0",
-    "npm": "^8.3.2",
+    "npm": "^8.11.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vue-slider-component": "^3.2.15",
